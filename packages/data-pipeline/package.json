@@ -1,0 +1,23 @@
+{
+  "name": "@kanjiku/data-pipeline",
+  "version": "1.0.0",
+  "description": "ETL pipeline to build SQLite database from kanji sources",
+  "main": "dist/index.js",
+  "scripts": {
+    "build:ts": "tsc",
+    "fetch:kanji": "node dist/fetch-kanji-fallback.js",
+    "build:db": "node dist/build-db.js",
+    "verify:db": "node dist/verify-db.js",
+    "pipeline": "npm run build:ts && npm run fetch:kanji && npm run build:db && npm run verify:db"
+  },
+  "dependencies": {
+    "kanji-data": "^1.1.0",
+    "sql.js": "^1.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "@types/sql.js": "^1.4.11",
+    "typescript": "^5.6.3"
+  },
+  "private": true
+}

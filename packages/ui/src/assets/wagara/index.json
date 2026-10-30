@@ -1,0 +1,37 @@
+[
+  {
+    "name": "seigaiha",
+    "title": "Seigaiha (Blue Wave)",
+    "filename": "seigaiha.svg"
+  },
+  {
+    "name": "asanoha",
+    "title": "Asanoha (Hemp Leaf)",
+    "filename": "asanoha.svg"
+  },
+  {
+    "name": "shippo",
+    "title": "Shippo (Cloisonné)",
+    "filename": "shippo.svg"
+  },
+  {
+    "name": "kikko",
+    "title": "Kikko (Tortoise Shell)",
+    "filename": "kikko.svg"
+  },
+  {
+    "name": "ichimatsu",
+    "title": "Ichimatsu (Checkerboard)",
+    "filename": "ichimatsu.svg"
+  },
+  {
+    "name": "yagasuri",
+    "title": "Yagasuri (Arrow Feathers)",
+    "filename": "yagasuri.svg"
+  },
+  {
+    "name": "sayagata",
+    "title": "Sayagata (Key Fret)",
+    "filename": "sayagata.svg"
+  }
+]

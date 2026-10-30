@@ -6,6 +6,7 @@
   "scripts": {
     "build:ts": "tsc",
     "fetch:kanji": "node dist/fetch-kanji-fallback.js",
+    "fetch:kanjivg": "node dist/media/fetch-kanjivg.js",
     "build:db": "node dist/build-db.js",
     "verify:db": "node dist/verify-db.js",
     "pipeline": "npm run build:ts && npm run fetch:kanji && npm run build:db && npm run verify:db"

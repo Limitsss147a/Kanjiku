@@ -1,0 +1,11 @@
+{
+  "fonts": [
+    {
+      "name": "Noto Sans CJK",
+      "type": "system",
+      "subset": "612 kanji + Latin",
+      "location": "system_font"
+    }
+  ],
+  "note": "Actual subset font requires manual download due to size (~250MB)"
+}

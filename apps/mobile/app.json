@@ -34,22 +34,10 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-router",
       "expo-font",
       "expo-sqlite",
-      "expo-file-system",
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/notification-icon.png",
-          "color": "#D8452B",
-          "defaultChannel": "default"
-        }
-      ]
+      "expo-file-system"
     ],
-    "experiments": {
-      "typedRoutes": true
-    },
     "extra": {
       "eas": {
         "projectId": "your-project-id"

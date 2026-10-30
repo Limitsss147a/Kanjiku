@@ -43,17 +43,15 @@ export function calculateNextReview(
       interval = Math.round(interval * ease);
     }
     repetitions += 1;
-    ease = ease + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02));
   } else {
     // Incorrect response
     repetitions = 0;
     interval = 1;
-    ease = Math.max(MIN_EASE, ease - 0.2);
     lapses += 1;
   }
 
-  // Clamp ease factor
-  ease = Math.max(MIN_EASE, ease);
+  // SM-2 ease adjustment applies to every grade, so blackouts are penalized more than near misses
+  ease = Math.max(MIN_EASE, ease + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02)));
 
   // Calculate next review timestamp (in seconds)
   const nextReviewAt = Math.floor(now / 1000) + (interval * 24 * 60 * 60);

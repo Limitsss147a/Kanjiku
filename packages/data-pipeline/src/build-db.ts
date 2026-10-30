@@ -54,6 +54,7 @@ function initializeDatabase(db: Database): void {
       widget_id TEXT NOT NULL,
       kanji_id TEXT NOT NULL,
       due_at INTEGER NOT NULL,
+      status TEXT DEFAULT 'pending',
       displayed_count INTEGER DEFAULT 0,
       last_displayed_at INTEGER,
       created_at INTEGER DEFAULT (strftime('%s', 'now'))

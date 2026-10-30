@@ -140,3 +140,66 @@ export async function getDueWidgetEntries(
   }
   return items;
 }
+
+/**
+ * Get next pending queue entry
+ */
+export async function getNextQueueEntry(): Promise<any | null> {
+  const result = await executeSQL(
+    `SELECT * FROM widget_queue WHERE status = 'pending' AND due_at <= ? ORDER BY due_at ASC LIMIT 1`,
+    [Date.now()]
+  );
+  if (result.rows.length === 0) return null;
+  return result.rows.item(0);
+}
+
+/**
+ * Mark queue entry as displayed
+ */
+export async function markQueueEntryDisplayed(queueId: string): Promise<void> {
+  await executeSQL(
+    `UPDATE widget_queue SET status = 'displayed', displayed_at = ? WHERE id = ?`,
+    [Date.now(), queueId]
+  );
+}
+
+/**
+ * Get queue statistics
+ */
+export async function getQueueStats(): Promise<{
+  pending: number;
+  displayed: number;
+  skipped: number;
+  oldest: number | null;
+  newest: number | null;
+}> {
+  const result = await executeSQL(`
+    SELECT
+      SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+      SUM(CASE WHEN status = 'displayed' THEN 1 ELSE 0 END) as displayed,
+      SUM(CASE WHEN status = 'skipped' THEN 1 ELSE 0 END) as skipped,
+      MIN(due_at) as oldest,
+      MAX(due_at) as newest
+    FROM widget_queue
+  `);
+  const row = result.rows.item(0);
+  return {
+    pending: row.pending || 0,
+    displayed: row.displayed || 0,
+    skipped: row.skipped || 0,
+    oldest: row.oldest || null,
+    newest: row.newest || null,
+  };
+}
+
+/**
+ * Clean up queue entries older than duration (hours)
+ */
+export async function cleanupOldQueueEntries(olderThanHours: number = 48): Promise<number> {
+  const cutoff = Date.now() - olderThanHours * 3600000;
+  const result = await executeSQL(
+    `DELETE FROM widget_queue WHERE (status = 'displayed' OR status = 'skipped') AND due_at < ?`,
+    [cutoff]
+  );
+  return result.rowsAffected || 0;
+}

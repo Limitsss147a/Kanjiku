@@ -1,57 +1,25 @@
+import 'react-native-get-random-values';
 import * as SQLite from 'expo-sqlite';
 import * as FileSystem from 'expo-file-system';
 import { Asset } from 'expo-asset';
+import { v4 as uuidv4 } from 'uuid';
+import { Kanji } from '../types/kanjiku';
 
 // Database version (increment when schema changes)
 const DATABASE_VERSION = 1;
 const DATABASE_NAME = 'kanjiku.db';
 const DATABASE_ASSET = Asset.fromModule(require('../../assets/database/kanjiku.db'));
+const SQLITE_DIR = `${FileSystem.documentDirectory}SQLite`;
+const DB_PATH = `${SQLITE_DIR}/${DATABASE_NAME}`;
 
 let database: SQLite.SQLiteDatabase | null = null;
+let initPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
-/**
- * Initialize SQLite database from bundled asset
- */
-export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
-  if (database) return database;
-
-  try {
-    // Check if database exists in app's SQLite directory
-    const dbPath = `${FileSystem.documentDirectory}SQLite/${DATABASE_NAME}`;
-    const dbInfo = await FileSystem.getInfoAsync(dbPath);
-
-    if (!dbInfo.exists) {
-      // Copy database from asset
-      const asset = DATABASE_ASSET;
-      await asset.downloadAsync(); // Ensure asset is downloaded
-
-      const assetUri = asset.localUri || asset.uri;
-      if (!assetUri) throw new Error('Database asset URI not found');
-
-      await FileSystem.makeDirectoryAsync(`${FileSystem.documentDirectory}SQLite`, { intermediates: true });
-      await FileSystem.copyAsync({ from: assetUri, to: dbPath });
-    }
-
-    // Open database
-    database = SQLite.openDatabase(DATABASE_NAME);
-    console.log('✅ Database initialized:', dbPath);
-
-    return database;
-  } catch (error) {
-    console.error('❌ Database initialization failed:', error);
-    throw error;
-  }
-}
-
-/**
- * Execute a SQL query with parameters
- */
-export async function executeSQL<T = any>(
+function runQuery(
+  db: SQLite.SQLiteDatabase,
   sql: string,
   params: any[] = []
 ): Promise<SQLite.SQLResultSet> {
-  const db = await initDatabase();
-  
   return new Promise((resolve, reject) => {
     db.transaction(tx => {
       tx.executeSql(
@@ -68,45 +36,148 @@ export async function executeSQL<T = any>(
   });
 }
 
+async function copyDatabaseFromAsset(): Promise<void> {
+  const asset = DATABASE_ASSET;
+  await asset.downloadAsync();
+
+  const assetUri = asset.localUri || asset.uri;
+  if (!assetUri) throw new Error('Database asset URI not found');
+
+  await FileSystem.makeDirectoryAsync(SQLITE_DIR, { intermediates: true });
+
+  // Copy to a temp file first so an interrupted copy never leaves a partial DB in place
+  const tmpPath = `${DB_PATH}.${Date.now()}.tmp`;
+  try {
+    await FileSystem.copyAsync({ from: assetUri, to: tmpPath });
+    await FileSystem.deleteAsync(DB_PATH, { idempotent: true });
+    await FileSystem.moveAsync({ from: tmpPath, to: DB_PATH });
+  } finally {
+    await FileSystem.deleteAsync(tmpPath, { idempotent: true });
+  }
+}
+
+async function openAndValidate(): Promise<SQLite.SQLiteDatabase> {
+  const db = SQLite.openDatabase(DATABASE_NAME);
+  try {
+    await runQuery(db, 'SELECT id FROM kanji LIMIT 1');
+    return db;
+  } catch (error) {
+    (db as { closeAsync?: () => unknown }).closeAsync?.();
+    throw error;
+  }
+}
+
+async function initializeDatabase(): Promise<SQLite.SQLiteDatabase> {
+  const dbInfo = await FileSystem.getInfoAsync(DB_PATH);
+  if (!dbInfo.exists) {
+    await copyDatabaseFromAsset();
+    return openAndValidate();
+  }
+
+  try {
+    return await openAndValidate();
+  } catch (error) {
+    console.warn('Existing database is invalid, restoring from asset:', error);
+    await copyDatabaseFromAsset();
+    return openAndValidate();
+  }
+}
+
+/**
+ * Initialize SQLite database from bundled asset.
+ * Concurrent callers share a single in-flight initialization.
+ */
+export function initDatabase(): Promise<SQLite.SQLiteDatabase> {
+  if (database) return Promise.resolve(database);
+
+  if (!initPromise) {
+    initPromise = initializeDatabase()
+      .then(db => {
+        database = db;
+        console.log('✅ Database initialized:', DB_PATH);
+        return db;
+      })
+      .catch(error => {
+        initPromise = null;
+        console.error('❌ Database initialization failed:', error);
+        throw error;
+      });
+  }
+
+  return initPromise;
+}
+
+/**
+ * Execute a SQL query with parameters
+ */
+export async function executeSQL(
+  sql: string,
+  params: any[] = []
+): Promise<SQLite.SQLResultSet> {
+  const db = await initDatabase();
+  return runQuery(db, sql, params);
+}
+
+function parseJsonArray(value: unknown): string[] {
+  if (Array.isArray(value)) return value;
+  if (typeof value !== 'string' || value === '') return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function mapKanjiRow(row: any): Kanji {
+  return {
+    ...row,
+    meanings_en: parseJsonArray(row.meanings_en),
+    meanings_id: parseJsonArray(row.meanings_id),
+    readings_on: parseJsonArray(row.readings_on),
+    readings_kun: parseJsonArray(row.readings_kun),
+  };
+}
+
+function mapKanjiRows(result: SQLite.SQLResultSet): Kanji[] {
+  const items: Kanji[] = [];
+  for (let i = 0; i < result.rows.length; i++) {
+    items.push(mapKanjiRow(result.rows.item(i)));
+  }
+  return items;
+}
+
 /**
  * Get a kanji by character
  */
-export async function getKanjiByCharacter(character: string): Promise<any> {
+export async function getKanjiByCharacter(character: string): Promise<Kanji | null> {
   const result = await executeSQL(
     `SELECT * FROM kanji WHERE character = ?`,
     [character]
   );
-  return result.rows.item(0);
+  return result.rows.length > 0 ? mapKanjiRow(result.rows.item(0)) : null;
 }
 
 /**
  * Get kanji by JLPT level
  */
-export async function getKanjiByJlpt(level: 5 | 4 | 3): Promise<any[]> {
+export async function getKanjiByJlpt(level: 5 | 4 | 3): Promise<Kanji[]> {
   const result = await executeSQL(
     `SELECT * FROM kanji WHERE jlpt = ? ORDER BY character`,
     [level]
   );
-  const items = [];
-  for (let i = 0; i < result.rows.length; i++) {
-    items.push(result.rows.item(i));
-  }
-  return items;
+  return mapKanjiRows(result);
 }
 
 /**
  * Get random kanji for widget queue
  */
-export async function getRandomKanjiForWidget(count: number = 10): Promise<any[]> {
+export async function getRandomKanjiForWidget(count: number = 10): Promise<Kanji[]> {
   const result = await executeSQL(
     `SELECT * FROM kanji WHERE jlpt IN (5, 4, 3) ORDER BY RANDOM() LIMIT ?`,
     [count]
   );
-  const items = [];
-  for (let i = 0; i < result.rows.length; i++) {
-    items.push(result.rows.item(i));
-  }
-  return items;
+  return mapKanjiRows(result);
 }
 
 /**
@@ -119,7 +190,7 @@ export async function addToWidgetQueue(
 ): Promise<void> {
   await executeSQL(
     `INSERT INTO widget_queue (id, widget_id, kanji_id, due_at, created_at) VALUES (?, ?, ?, ?, ?)`,
-    [`${widgetId}_${Date.now()}`, widgetId, kanjiId, dueAt, Math.floor(Date.now() / 1000)]
+    [uuidv4(), widgetId, kanjiId, dueAt, Math.floor(Date.now() / 1000)]
   );
 }
 

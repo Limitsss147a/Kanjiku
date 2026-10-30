@@ -41,6 +41,7 @@ function initializeDatabase(db: Database): void {
       readings_on TEXT,
       readings_kun TEXT,
       radical TEXT,
+      svg_filename TEXT,
       created_at INTEGER DEFAULT (strftime('%s', 'now'))
     )
   `);
@@ -117,12 +118,18 @@ function loadKanjiData(): KanjiRaw[] {
 
 function insertKanjiData(db: Database, kanji: KanjiRaw[]): void {
   for (const item of kanji) {
+    // Generate KanjiVG SVG filename from unicode
+    const unicodeParts = item.unicode.split("+");
+    const svgFilename = unicodeParts.length === 2 
+      ? `${unicodeParts[1].toLowerCase()}.svg`
+      : null;
+
     db.run(
       `INSERT OR REPLACE INTO kanji (
         id, character, unicode, jlpt, strokes, grade,
         meaning, meanings_en, meanings_id,
-        readings_on, readings_kun, radical
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        readings_on, readings_kun, radical, svg_filename
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         item.id, item.character, item.unicode, item.jlpt,
         item.strokes, item.grade ?? null, item.meaning,
@@ -130,7 +137,8 @@ function insertKanjiData(db: Database, kanji: KanjiRaw[]): void {
         JSON.stringify(item.meanings_id),
         JSON.stringify(item.readings_on),
         JSON.stringify(item.readings_kun),
-        item.radical ?? null
+        item.radical ?? null,
+        svgFilename
       ]
     );
   }

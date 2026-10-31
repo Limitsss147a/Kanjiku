@@ -15,8 +15,14 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - name: Install dependencies
+      - name: Install root dependencies
         run: npm ci --workspaces=false
+      - name: Install shared dependencies
+        run: cd packages/shared && npm ci
+      - name: Install mobile dependencies
+        run: cd apps/mobile && npm ci
+      - name: Install data-pipeline dependencies
+        run: cd packages/data-pipeline && npm ci
       - name: Typecheck shared
         run: cd packages/shared && npm run typecheck
       - name: Typecheck mobile
@@ -32,8 +38,10 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - name: Install dependencies
+      - name: Install root dependencies
         run: npm ci --workspaces=false
+      - name: Install mobile dependencies
+        run: cd apps/mobile && npm ci
       - name: Run mobile tests
         run: cd apps/mobile && npm test --if-present
 
@@ -50,7 +58,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - name: Install dependencies
+      - name: Install root dependencies
         run: npm ci --workspaces=false
       - name: Build Android Widget
         working-directory: apps/widget-android

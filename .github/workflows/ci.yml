@@ -16,13 +16,13 @@ jobs:
           node-version: 20
           cache: npm
       - name: Install root dependencies
-        run: npm ci --workspaces=false
+        run: npm ci --workspaces=false --legacy-peer-deps
       - name: Install shared dependencies
-        run: cd packages/shared && npm ci
+        run: cd packages/shared && npm ci --legacy-peer-deps
       - name: Install mobile dependencies
-        run: cd apps/mobile && npm ci
+        run: cd apps/mobile && npm ci --legacy-peer-deps
       - name: Install data-pipeline dependencies
-        run: cd packages/data-pipeline && npm ci
+        run: cd packages/data-pipeline && npm ci --legacy-peer-deps
       - name: Typecheck shared
         run: cd packages/shared && npm run typecheck
       - name: Typecheck mobile
@@ -39,9 +39,9 @@ jobs:
           node-version: 20
           cache: npm
       - name: Install root dependencies
-        run: npm ci --workspaces=false
+        run: npm ci --workspaces=false --legacy-peer-deps
       - name: Install mobile dependencies
-        run: cd apps/mobile && npm ci
+        run: cd apps/mobile && npm ci --legacy-peer-deps
       - name: Run mobile tests
         run: cd apps/mobile && npm test --if-present
 
@@ -59,7 +59,7 @@ jobs:
           distribution: temurin
           java-version: 17
       - name: Install root dependencies
-        run: npm ci --workspaces=false
+        run: npm ci --workspaces=false --legacy-peer-deps
       - name: Build Android Widget
         working-directory: apps/widget-android
         run: ./gradlew assembleDebug

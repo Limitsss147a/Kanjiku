@@ -184,3 +184,151 @@ export function cleanupOldQueueEntries(olderThanHours: number = 48): number {
   );
   return res.changes || 0;
 }
+
+/**
+ * SRS REVIEW FUNCTIONS
+ * Using srs_reviews table created in data-pipeline
+ */
+
+export interface SRSReview {
+  id: string;
+  kanji_id: string;
+  user_id: string;
+  interval: number;
+  ease: number;
+  repetitions: number;
+  lapses: number;
+  next_review_at: number;
+  difficulty: number;
+  last_reviewed_at: number;
+}
+
+/**
+ * Get or create SRS review entry for a kanji
+ */
+export function getOrCreateSRSReview(kanjiId: string, userId: string = 'default'): SRSReview {
+  const result = executeSQL(
+    `SELECT * FROM srs_reviews WHERE kanji_id = ? AND user_id = ?`,
+    [kanjiId, userId]
+  );
+  
+  if (result.rows.length > 0) {
+    return result.rows.item(0) as SRSReview;
+  }
+  
+  // Create new entry
+  const newId = `srs_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  executeSQL(
+    `INSERT INTO srs_reviews (id, kanji_id, user_id, interval, ease, repetitions, lapses, next_review_at, difficulty, last_reviewed_at)
+     VALUES (?, ?, ?, 1, 2.5, 0, 0, ?, 0.5, ?)`,
+    [newId, kanjiId, userId, Math.floor(Date.now() / 1000) + 86400, Math.floor(Date.now() / 1000)]
+  );
+  
+  return getOrCreateSRSReview(kanjiId, userId) as SRSReview;
+}
+
+/**
+ * Update SRS review after grading
+ */
+export function updateSRSReview(
+  kanjiId: string,
+  userId: string,
+  grade: number,
+  now: number = Date.now()
+): SRSReview {
+  const entry = getOrCreateSRSReview(kanjiId, userId);
+  
+  // Use calculateNextReview logic (inline to avoid circular deps)
+  const MIN_EASE = 1.3;
+  let interval = entry.interval;
+  let ease = entry.ease;
+  let repetitions = entry.repetitions;
+  let lapses = entry.lapses;
+  
+  if (grade >= 3) {
+    if (repetitions === 0) interval = 1;
+    else if (repetitions === 1) interval = 6;
+    else interval = Math.round(interval * ease);
+    repetitions += 1;
+    ease = ease + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02));
+  } else {
+    repetitions = 0;
+    interval = 1;
+    ease = Math.max(MIN_EASE, ease - 0.2);
+    lapses += 1;
+  }
+  ease = Math.max(MIN_EASE, ease);
+  
+  const nextReviewAt = Math.floor(now / 1000) + (interval * 24 * 60 * 60);
+  
+  executeSQL(
+    `UPDATE srs_reviews 
+     SET interval = ?, ease = ?, repetitions = ?, lapses = ?, 
+         next_review_at = ?, difficulty = ?, last_reviewed_at = ?
+     WHERE kanji_id = ? AND user_id = ?`,
+    [interval, ease, repetitions, lapses, nextReviewAt, 0.5, Math.floor(now / 1000), kanjiId, userId]
+  );
+  
+  return getOrCreateSRSReview(kanjiId, userId) as SRSReview;
+}
+
+/**
+ * Get due SRS reviews for review session
+ */
+export function getDueSRSReviews(
+  userId: string = 'default',
+  limit: number = 20
+): (SRSReview & { character: string; meanings_id: string })[] {
+  const nowSec = Math.floor(Date.now() / 1000);
+  const result = executeSQL(
+    `SELECT sr.*, k.character, k.meanings_id
+     FROM srs_reviews sr
+     JOIN kanji k ON sr.kanji_id = k.id
+     WHERE sr.user_id = ? AND sr.next_review_at <= ?
+     ORDER BY sr.next_review_at ASC
+     LIMIT ?`,
+    [userId, nowSec, limit]
+  );
+  
+  const items: (SRSReview & { character: string; meanings_id: string })[] = [];
+  for (let i = 0; i < result.rows.length; i++) {
+    items.push(result.rows.item(i) as any);
+  }
+  return items;
+}
+
+/**
+ * Get total review count statistics
+ */
+export function getSRSStats(userId: string = 'default'): {
+  total: number;
+  due: number;
+  learning: number;
+  mature: number;
+} {
+  const nowSec = Math.floor(Date.now() / 1000);
+  
+  const totalResult = executeSQL(
+    `SELECT COUNT(*) as count FROM srs_reviews WHERE user_id = ?`,
+    [userId]
+  );
+  const dueResult = executeSQL(
+    `SELECT COUNT(*) as count FROM srs_reviews WHERE user_id = ? AND next_review_at <= ?`,
+    [userId, nowSec]
+  );
+  const learningResult = executeSQL(
+    `SELECT COUNT(*) as count FROM srs_reviews WHERE user_id = ? AND repetitions < 5`,
+    [userId]
+  );
+  const matureResult = executeSQL(
+    `SELECT COUNT(*) as count FROM srs_reviews WHERE user_id = ? AND repetitions >= 5`,
+    [userId]
+  );
+  
+  return {
+    total: totalResult.rows.item(0)?.count || 0,
+    due: dueResult.rows.item(0)?.count || 0,
+    learning: learningResult.rows.item(0)?.count || 0,
+    mature: matureResult.rows.item(0)?.count || 0,
+  };
+}

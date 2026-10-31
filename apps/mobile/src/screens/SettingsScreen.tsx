@@ -3,13 +3,14 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { getQueueStats, cleanupOldQueueEntries } from '../services/database';
+import { getQueueStats, cleanupOldQueueEntries, getSRSStats } from '../services/database';
 import type { RootStackParamList } from '../navigation/AppNavigator';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
 export default function SettingsScreen({ navigation }: Props) {
   const [stats, setStats] = useState<any>(null);
+  const [srsStats, setSrsStats] = useState<any>(null);
 
   useEffect(() => {
     loadStats();
@@ -19,6 +20,8 @@ export default function SettingsScreen({ navigation }: Props) {
     try {
       const s = await getQueueStats();
       setStats(s);
+      const srs = await getSRSStats();
+      setSrsStats(srs);
     } catch (err) {
       console.error(err);
     }
@@ -44,6 +47,16 @@ export default function SettingsScreen({ navigation }: Props) {
           <Text style={styles.item}>Pending: {stats.pending}</Text>
           <Text style={styles.item}>Ditampilkan: {stats.displayed}</Text>
           <Text style={styles.item}>Dilewati: {stats.skipped}</Text>
+        </View>
+      )}
+
+      {srsStats && (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Statistik SRS Flashcard</Text>
+          <Text style={styles.item}>Total Kartu Aktif: {srsStats.total}</Text>
+          <Text style={styles.item}>Perlu Direview: {srsStats.due}</Text>
+          <Text style={styles.item}>Fase Belajar: {srsStats.learning}</Text>
+          <Text style={styles.item}>Sudah Dikuasai: {srsStats.mature}</Text>
         </View>
       )}
 

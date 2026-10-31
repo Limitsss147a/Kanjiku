@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { getNextQueueEntry, getKanjiById, markQueueEntryDisplayed } from '../services/database';
+import { getNextQueueEntry, getKanjiById, markQueueEntryDisplayed, getOrCreateSRSReview, updateSRSReview } from '../services/database';
 import { calculateNextReview, Grade, SRSGrade } from '../services/srs';
 import type { RootStackParamList } from '../navigation/AppNavigator';
 
@@ -15,6 +15,7 @@ export default function ReviewScreen({ navigation }: Props) {
   const [revealed, setRevealed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [reviewedCount, setReviewedCount] = useState(0);
+  const [srsInfo, setSrsInfo] = useState<any>(null);
 
   useEffect(() => {
     loadNextCard();
@@ -28,11 +29,15 @@ export default function ReviewScreen({ navigation }: Props) {
       if (!entry) {
         setCurrentEntry(null);
         setKanji(null);
+        setSrsInfo(null);
         return;
       }
       setCurrentEntry(entry);
       const k = await getKanjiById(entry.kanji_id);
       setKanji(k);
+      // Load SRS info for this kanji
+      const srs = await getOrCreateSRSReview(entry.kanji_id);
+      setSrsInfo(srs);
     } catch (err) {
       console.error('Failed to load review card:', err);
     } finally {
@@ -41,18 +46,15 @@ export default function ReviewScreen({ navigation }: Props) {
   }
 
   async function handleGrade(grade: number) {
-    if (!currentEntry || !kanji) return;
+    if (!currentEntry || !kanji || !srsInfo) return;
 
     try {
-      // Calculate SM-2 SRS updates (simplified for now)
+      // Calculate SM-2 SRS updates and persist to database
       const now = Date.now();
-      const srsResult = calculateNextReview(
-        {
-          repetitions: 0,
-          interval: 1,
-          ease: 2.5,
-        } as any,
-        grade as SRSGrade,
+      const updatedSRS = updateSRSReview(
+        currentEntry.kanji_id,
+        'default',
+        grade,
         now
       );
 
@@ -60,6 +62,7 @@ export default function ReviewScreen({ navigation }: Props) {
       await markQueueEntryDisplayed(currentEntry.id);
 
       setReviewedCount((prev) => prev + 1);
+      setSrsInfo(updatedSRS);
 
       // Load next card
       loadNextCard();

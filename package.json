@@ -7,7 +7,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"No tests specified\""
+    "test": "cd apps/mobile && npm test --if-present",
+    "typecheck": "cd packages/shared && npm run typecheck && cd ../apps/mobile && npm run typecheck && cd ../data-pipeline && npm run build:ts"
   },
   "keywords": [],
   "author": "",

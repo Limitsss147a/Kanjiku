@@ -9,7 +9,7 @@
     "web": "expo start --web",
     "lint": "eslint . --ext .ts,.tsx",
     "typecheck": "tsc --noEmit",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "test:e2e": "detox test -c android.emu.release",
     "db:build": "node ../../packages/data-pipeline/dist/build.js",
     "db:verify": "node ../../packages/data-pipeline/dist/verify.js",

@@ -12,6 +12,13 @@ const DEFAULT_EASE = 2.5;
 
 export type SRSGrade = 0 | 1 | 2 | 3 | 4 | 5;
 
+export const Grade = {
+  AGAIN: 0 as SRSGrade,
+  HARD: 1 as SRSGrade,
+  GOOD: 2 as SRSGrade,
+  EASY: 3 as SRSGrade,
+};
+
 export interface SRSResult {
   interval: number;
   ease: number;

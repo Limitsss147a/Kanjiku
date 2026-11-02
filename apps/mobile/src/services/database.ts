@@ -1,5 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 import * as FileSystem from 'expo-file-system/legacy';
+import RNFS from 'react-native-fs';
 import { Asset } from 'expo-asset';
 
 // Database version (increment when schema changes)
@@ -8,6 +9,46 @@ const DATABASE_NAME = 'kanjiku.db';
 const DATABASE_ASSET = Asset.fromModule(require('../../assets/database/kanjiku.db'));
 
 let database: SQLite.SQLiteDatabase | null = null;
+
+/**
+ * Copy database to external files directory for widget access.
+ * Widget reads from: getExternalFilesDir(null)/databases/kanjiku.db
+ */
+export async function copyDatabaseToSharedStorage(): Promise<void> {
+  try {
+    const externalFilesDir = RNFS.ExternalDirectoryPath;
+    if (!externalFilesDir) {
+      console.warn('⚠️ External files directory unavailable, widget may not work');
+      return;
+    }
+
+    const sharedDbDir = `${externalFilesDir}/databases`;
+    const sharedDbPath = `${sharedDbDir}/${DATABASE_NAME}`;
+
+    // Check if already copied
+    const existing = await RNFS.exists(sharedDbPath);
+    if (existing) {
+      console.log('✅ Database already in shared storage:', sharedDbPath);
+      return;
+    }
+
+    // Make directory
+    await RNFS.mkdir(sharedDbDir);
+
+    // Copy from bundled asset
+    const asset = DATABASE_ASSET;
+    await asset.downloadAsync();
+
+    const assetUri = asset.localUri || asset.uri;
+    if (!assetUri) throw new Error('Database asset URI not found');
+
+    await RNFS.copyFile(assetUri.replace('file://', ''), sharedDbPath);
+    console.log('✅ Database copied to shared storage:', sharedDbPath);
+  } catch (error) {
+    console.error('❌ Failed to copy database to shared storage:', error);
+    // Non-fatal: app still works, widget just won't update
+  }
+}
 
 /**
  * Initialize SQLite database from bundled asset
@@ -32,6 +73,9 @@ export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
 
     database = SQLite.openDatabaseSync(DATABASE_NAME);
     console.log('✅ Database initialized:', dbPath);
+
+    // Trigger widget DB copy in background (non-blocking)
+    copyDatabaseToSharedStorage().catch(e => console.warn('Widget DB copy failed:', e));
 
     return database;
   } catch (error) {

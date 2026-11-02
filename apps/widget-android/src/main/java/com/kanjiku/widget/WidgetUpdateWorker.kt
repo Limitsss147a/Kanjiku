@@ -4,13 +4,17 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 import androidx.glance.appwidget.updateAll
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import java.io.File
 import java.util.Calendar
+
+private const val TAG = "WidgetUpdateWorker"
 
 /**
  * Worker executed every 15 minutes by WorkManager.
@@ -30,6 +34,12 @@ class WidgetUpdateWorker(
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         return@withContext try {
+            // Step 0: Check if database is available
+            if (!KanjiDbHelper.isDatabaseAvailable(context)) {
+                Log.w(TAG, "Database not available, skipping update")
+                return@withContext Result.success()
+            }
+
             // Step 1: Check active schedule (skip if night mode)
             if (!isWithinActiveHours()) {
                 return@withContext Result.success()
@@ -50,6 +60,7 @@ class WidgetUpdateWorker(
 
             Result.success()
         } catch (e: Exception) {
+            Log.e(TAG, "Worker failed", e)
             // Exponential backoff retry on failure
             Result.retry()
         }
@@ -80,7 +91,7 @@ class WidgetUpdateWorker(
             // Find next pending queue entry due now
             val cursor = db.rawQuery(
                 """
-                SELECT wq.id as queue_id, k.character, k.reading_on, k.reading_kun, k.meanings_id, k.jlpt_level
+                SELECT wq.id as queue_id, k.character, k.on_readings, k.kun_readings, k.meanings_id, k.jlpt_level
                 FROM widget_queue wq
                 JOIN kanji k ON wq.kanji_id = k.id
                 WHERE wq.status = 'pending' AND wq.due_at <= ?
@@ -97,8 +108,8 @@ class WidgetUpdateWorker(
 
             val queueId = cursor.getString(cursor.getColumnIndexOrThrow("queue_id"))
             val character = cursor.getString(cursor.getColumnIndexOrThrow("character"))
-            val readingOn = cursor.getString(cursor.getColumnIndexOrThrow("reading_on"))
-            val readingKun = cursor.getString(cursor.getColumnIndexOrThrow("reading_kun"))
+            val readingOn = cursor.getString(cursor.getColumnIndexOrThrow("on_readings"))
+            val readingKun = cursor.getString(cursor.getColumnIndexOrThrow("kun_readings"))
             val meaningsId = cursor.getString(cursor.getColumnIndexOrThrow("meanings_id"))
             val jlptLevel = cursor.getInt(cursor.getColumnIndexOrThrow("jlpt_level"))
 
@@ -126,17 +137,37 @@ class WidgetUpdateWorker(
     }
 
     private fun formatReading(on: String?, kun: String?): String {
-        val parts = mutableListOf<String>()
-        if (on.isNotBlank()) parts.add(on.uppercase())
-        if (kun.isNotBlank()) parts.add(kun.lowercase())
-        return if (parts.isEmpty()) "-" else parts.joinToString(" / ")
+        return try {
+            val parts = mutableListOf<String>()
+            
+            // Parse JSON arrays
+            if (!on.isNullOrBlank() && on != "null") {
+                val onArray = JSONArray(on)
+                for (i in 0 until onArray.length()) {
+                    parts.add(onArray.getString(i).uppercase())
+                }
+            }
+            
+            if (!kun.isNullOrBlank() && kun != "null") {
+                val kunArray = JSONArray(kun)
+                for (i in 0 until kunArray.length()) {
+                    parts.add(kunArray.getString(i).lowercase())
+                }
+            }
+            
+            if (parts.isEmpty()) "-" else parts.take(3).joinToString(" / ")
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to parse readings: on=$on, kun=$kun", e)
+            "-"
+        }
     }
 
     private fun formatMeaning(meaningsJson: String?): String {
         return try {
-            val jsonArray = org.json.JSONArray(meaningsJson ?: "[]")
+            val jsonArray = JSONArray(meaningsJson ?: "[]")
             if (jsonArray.length() > 0) jsonArray.getString(0) else "-"
         } catch (e: Exception) {
+            Log.w(TAG, "Failed to parse meanings: $meaningsJson", e)
             meaningsJson ?: "-"
         }
     }
@@ -151,50 +182,3 @@ class WidgetUpdateWorker(
     }
 }
 
-/**
- * SQLite helper to access the kanjiku database.
- * Database is copied from React Native app's internal storage to a shared location.
- * For simplicity, we read from the app's internal database path.
- * In production, consider using a ContentProvider or FileProvider for cross-process access.
- */
-class KanjiDbHelper(context: Context) : SQLiteOpenHelper(
-    context,
-    "kanjiku.db",
-    null,
-    1
-) {
-    override fun onCreate(db: SQLiteDatabase?) {
-        // Database created by mobile app, not here
-    }
-
-    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        // Handle migrations if needed
-    }
-
-    /**
-     * Get database path. The React Native app copies the database to its internal
-     * files directory. We access it via the package context.
-     * Note: This requires the widget app to have the same sharedUserId or
-     * the database to be in a shared external directory.
-     * For now, we try to find it in the app's internal storage.
-     */
-    companion object {
-        private const val DB_NAME = "kanjiku.db"
-
-        fun getDatabasePath(context: Context): File? {
-            // Try to get database from the main app's internal storage
-            // This works if both apps share the same UID (sharedUserId in manifest)
-            // or if database is placed in a shared external directory.
-            try {
-                val mainAppContext = context.createPackageContext(
-                    "com.kanjiku", // Package name of the main React Native app
-                    Context.CONTEXT_IGNORE_SECURITY
-                )
-                return File(mainAppContext.filesDir.parentFile, "databases/$DB_NAME")
-            } catch (e: Exception) {
-                // Fallback: check external files directory
-                return File(context.getExternalFilesDir(null), "databases/$DB_NAME")
-            }
-        }
-    }
-}

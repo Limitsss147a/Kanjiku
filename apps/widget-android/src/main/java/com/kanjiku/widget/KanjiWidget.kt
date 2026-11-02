@@ -3,7 +3,6 @@ package com.kanjiku.widget
 import android.content.Context
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.GlanceTheme
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.provideContent
@@ -18,7 +17,6 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
-import android.graphics.Color
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.height
 import androidx.glance.unit.dp
@@ -38,12 +36,7 @@ import android.net.Uri
  */
 class KanjiWidget : GlanceAppWidget() {
 
-    override val sizeMode = SizeMode.Fixed
-    override val sizes = setOf(
-        SizeMode.Single,  // 2x2
-        SizeMode.Single,  // 4x2
-        SizeMode.Single   // 4x4
-    )
+    override val sizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         // Read from SharedPreferences (populated by WidgetUpdateWorker)
@@ -60,66 +53,68 @@ class KanjiWidget : GlanceAppWidget() {
         val isLarge = size.widthDp > 400 // 4x4 ~ 450dp
 
         provideContent {
-            GlanceTheme {
-                Box(
-                    modifier = GlanceModifier
-                        .fillMaxSize()
-                        .background(ColorProvider(Color.parseColor("#FBF7EE")))
-                        .clickable(actionStartActivity(
-                            Intent(Intent.ACTION_VIEW, Uri.parse("kanjiku://kanji/${kanji.character}"))
-                        )),
-                    contentAlignment = Alignment.Center
+            val theme = WidgetTheme.getCurrentTheme(context)
+            val themeImpl = if (theme == WidgetTheme.Washi) WashiTheme() else SumiTheme()
+            
+            Box(
+                modifier = GlanceModifier
+                    .fillMaxSize()
+                    .background(ColorProvider(themeImpl.background))
+                    .clickable(actionStartActivity(
+                        Intent(Intent.ACTION_VIEW, Uri.parse("kanjiku://kanji/${kanji.character}"))
+                    )),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    modifier = GlanceModifier.padding(if (isSmall) 8.dp else if (isLarge) 24.dp else 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Column(
-                        modifier = GlanceModifier.padding(if (isSmall) 8.dp else if (isLarge) 24.dp else 16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        // Kanji character - size varies by widget size
+                    // Kanji character - size varies by widget size
+                    Text(
+                        text = kanji.character,
+                        style = TextStyle(
+                            fontSize = if (isSmall) 48.sp else if (isLarge) 96.sp else 64.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = ColorProvider(themeImpl.text)
+                        )
+                    )
+
+                    Spacer(modifier = GlanceModifier.height(if (isSmall) 4.dp else if (isLarge) 8.dp else 6.dp))
+
+                    // Reading (on'yomi / kun'yomi) - hide on small widget
+                    if (!isSmall) {
                         Text(
-                            text = kanji.character,
+                            text = kanji.reading,
                             style = TextStyle(
-                                fontSize = if (isSmall) 48.sp else if (isLarge) 96.sp else 64.sp,
+                                fontSize = if (isLarge) 20.sp else 14.sp,
+                                color = ColorProvider(themeImpl.textSecondary)
+                            )
+                        )
+
+                        Spacer(modifier = GlanceModifier.height(if (isLarge) 4.dp else 2.dp))
+                    }
+
+                    // Meaning (Indonesian) - show on all sizes, truncated on small
+                    Text(
+                        text = if (isSmall) truncate(kanji.meaningId, 20) else kanji.meaningId,
+                        style = TextStyle(
+                            fontSize = if (isSmall) 10.sp else if (isLarge) 18.sp else 14.sp,
+                            color = ColorProvider(themeImpl.accent)
+                        )
+                    )
+
+                    // JLPT badge - only on large widget
+                    if (isLarge) {
+                        Spacer(modifier = GlanceModifier.height(8.dp))
+                        val badgeColor = themeImpl.jlptBadge["N${kanji.jlptLevel}"] ?: themeImpl.accent
+                        Text(
+                            text = "N${kanji.jlptLevel}",
+                            style = TextStyle(
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = ColorProvider(Color.parseColor("#2D2D2D"))
+                                color = ColorProvider(badgeColor)
                             )
                         )
-
-                        Spacer(modifier = GlanceModifier.height(if (isSmall) 4.dp else if (isLarge) 8.dp else 6.dp))
-
-                        // Reading (on'yomi / kun'yomi) - hide on small widget
-                        if (!isSmall) {
-                            Text(
-                                text = kanji.reading,
-                                style = TextStyle(
-                                    fontSize = if (isLarge) 20.sp else 14.sp,
-                                    color = ColorProvider(Color.parseColor("#666666"))
-                                )
-                            )
-
-                            Spacer(modifier = GlanceModifier.height(if (isLarge) 4.dp else 2.dp))
-                        }
-
-                        // Meaning (Indonesian) - show on all sizes, truncated on small
-                        Text(
-                            text = if (isSmall) truncate(kanji.meaningId, 20) else kanji.meaningId,
-                            style = TextStyle(
-                                fontSize = if (isSmall) 10.sp else if (isLarge) 18.sp else 14.sp,
-                                color = ColorProvider(Color.parseColor("#D8452B"))
-                            )
-                        )
-
-                        // JLPT badge - only on large widget
-                        if (isLarge) {
-                            Spacer(modifier = GlanceModifier.height(8.dp))
-                            Text(
-                                text = "N${kanji.jlptLevel}",
-                                style = TextStyle(
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = ColorProvider(Color.parseColor("#888888"))
-                                )
-                            )
-                        }
                     }
                 }
             }

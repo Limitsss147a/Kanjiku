@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { KanjiCard, useTheme } from '@kanjiku/ui';
 
 import { initDatabase, getRandomKanjiForWidget, getQueueStats } from '../services/database';
 import type { RootStackParamList } from '../navigation/AppNavigator';
@@ -62,14 +63,13 @@ export default function HomeScreen({ navigation }: Props) {
 
       {/* Random Kanji Card */}
       {kanji && (
-        <TouchableOpacity
-          style={styles.kanjiCard}
+        <KanjiCard
+          character={kanji.character}
+          meaning={kanji.meaning}
+          jlptLevel={kanji.jlpt}
+          size="large"
           onPress={() => navigation.navigate('KanjiDetail', { kanjiId: kanji.id })}
-        >
-          <Text style={styles.kanjiChar}>{kanji.character}</Text>
-          <Text style={styles.kanjiMeaning}>{kanji.meaning}</Text>
-          <Text style={styles.kanjiLevel}>N{kanji.jlpt}</Text>
-        </TouchableOpacity>
+        />
       )}
 
       {/* Actions */}

@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useTheme } from '@kanjiku/ui';
 
 import HomeScreen from '../screens/HomeScreen';
 import KanjiDetailScreen from '../screens/KanjiDetailScreen';
@@ -19,11 +20,27 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
+  const { theme, colors } = useTheme();
+
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <StatusBar style="dark" />
-        <Stack.Navigator initialRouteName="Home">
+        <StatusBar style={theme === 'sumi' ? 'light' : 'dark'} />
+        <Stack.Navigator
+          initialRouteName="Home"
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: colors.surface,
+            },
+            headerTintColor: colors.text,
+            headerTitleStyle: {
+              fontWeight: '600',
+            },
+            contentStyle: {
+              backgroundColor: colors.bg,
+            },
+          }}
+        >
           <Stack.Screen
             name="Home"
             component={HomeScreen}

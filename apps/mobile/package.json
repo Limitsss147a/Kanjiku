@@ -16,6 +16,7 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
+    "@kanjiku/ui": "file:../../packages/ui",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
     "expo": "~58.0.21",

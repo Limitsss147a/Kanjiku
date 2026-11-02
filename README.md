@@ -102,24 +102,26 @@ npm run pipeline
 
 ## 📱 Features (Current)
 
-### ✅ Implemented (Fase 0-1)
+### ✅ Implemented (Fase 0-2)
 - [x] 612 kanji database (N5-N3)
-- [x] SQLite ETL pipeline
-- [x] Mobile app shell (Expo)
-- [x] Basic widget layout (Kotlin/Glance)
+- [x] SQLite ETL pipeline (sql.js + native SQLite)
+- [x] Mobile app (React Native + Expo SDK 58)
+- [x] Widget queue system (48h rolling)
+- [x] SRS review UI (SM-2 algorithm)
+- [x] Deep linking (`kanjiku://kanji/{character}`)
+- [x] Android widget (Kotlin/Glance 1.1, WorkManager 15-min)
 - [x] 7 Wagara UI patterns
-- [x] SRS SM-2 algorithm stub
-- [x] Database integration to mobile app
+- [x] Design system tokens (Washi light / Sumi dark)
+- [x] Hybrid DB copy strategy (mobile → shared storage)
 
-### ⏳ In Progress (Fase 2)
-- [ ] Widget queue system (48h rolling)
-- [ ] SRS review UI
-- [ ] Deep linking
-- [ ] Android widget receiver setup
+### ⏳ In Progress (Fase 4)
+- [ ] Accessibility audit (WCAG)
+- [ ] Widget theming (Washi/Sumi)
+- [ ] Boot receiver scheduling
+- [ ] Testing matrix (Android 8-14)
 
-### 📋 Planned (Fase 3-4)
-- [ ] Notifications (scheduled reviews)
-- [ ] iOS WidgetKit (post-MVP)
+### 📋 Planned (Fase 5+)
+- [ ] iOS WidgetKit
 - [ ] FSRS v2 migration
 - [ ] Statistics dashboard
 - [ ] User sync (Firebase?)
@@ -172,11 +174,11 @@ npm run ci
 |-------|----------|-------|--------|
 | **0** | 2 weeks | Research, validation | ✅ Done |
 | **1** | 4 weeks | Data pipeline, UI assets | ✅ Done |
-| **2** | 6 weeks | SRS, widget queue, perf | ⏳ Next |
-| **3** | 3 weeks | Notifications, polish | 📋 Planned |
-| **4** | 3 weeks | Release prep, App Store | 📋 Planned |
+| **2** | 6 weeks | SRS, widget queue, mobile screens | ✅ Done |
+| **3** | 3 weeks | Widget production (DB access, themes) | ✅ Done |
+| **4** | 3 weeks | UI polish, accessibility, testing | ⏳ In Progress |
 
-**MVP Target:** End of Fase 2 (week 12)
+**MVP Target:** End of Phase 4
 
 ---
 

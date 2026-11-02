@@ -7,9 +7,14 @@
   "scripts": {
     "build": "tsc"
   },
-  "dependencies": {},
+  "dependencies": {
+    "react": "18.3.1",
+    "react-native": "0.76.3"
+  },
   "devDependencies": {
     "typescript": "^5.0.0",
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0",
+    "@types/react": "~19.3.0",
+    "@types/react-native": "~0.73.0"
   }
 }

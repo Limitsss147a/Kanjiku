@@ -1,4 +1,4 @@
-import { saveAllPatterns } from "./wagara";
+import { saveAllPatterns } from "./wagara-node";
 import * as path from "node:path";
 
 const OUTPUT_DIR = path.join(__dirname, "assets", "wagara");

@@ -1,14 +1,11 @@
 /**
- * Wagara Pattern Generator
+ * Wagara Pattern Generator - Runtime (React Native compatible)
  * 
  * 7 traditional Japanese geometric patterns (64x64 SVG)
  * Used as widget background and app UI decorations
  * 
  * CC0 (Public Domain) - generated procedurally
  */
-
-import * as fs from "node:fs";
-import * as path from "node:path";
 
 type PatternName =
   | "seigaiha"
@@ -93,7 +90,7 @@ function generateKikko(): string {
         const angle = (i * 60 * Math.PI) / 180;
         points.push([x + r * Math.cos(angle), y + r * Math.sin(angle)]);
       }
-      svg += `<polygon points="${points.map(p => p.join(`,`)).join(" ")}" fill="none" stroke="#d4a574" stroke-width="1"/>`;
+      svg += `<polygon points="${points.map(p => p.join(",")).join(" ")}" fill="none" stroke="#d4a574" stroke-width="1"/>`;
     }
   }
   svg += "</svg>";
@@ -198,23 +195,6 @@ export function generatePattern(name: PatternName): string {
   return pattern.svg;
 }
 
-export function saveAllPatterns(outputDir: string): void {
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
-
-  for (const pattern of patterns) {
-    const filename = path.join(outputDir, `${pattern.name}.svg`);
-    fs.writeFileSync(filename, pattern.svg);
-    console.log(`Saved: ${filename}`);
-  }
-
-  // Generate index JSON
-  const index = patterns.map(p => ({
-    name: p.name,
-    title: p.title,
-    filename: `${p.name}.svg`
-  }));
-  fs.writeFileSync(path.join(outputDir, "index.json"), JSON.stringify(index, null, 2));
-  console.log(`Saved: ${path.join(outputDir, "index.json")}`);
+export function getPatternByName(name: PatternName): Pattern | undefined {
+  return patterns.find(p => p.name === name);
 }

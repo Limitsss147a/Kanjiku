@@ -102,7 +102,7 @@ npm run pipeline
 
 ## 📱 Features (Current)
 
-### ✅ Implemented (Fase 0-2)
+### ✅ Implemented (Fase 0-4)
 - [x] 612 kanji database (N5-N3)
 - [x] SQLite ETL pipeline (sql.js + native SQLite)
 - [x] Mobile app (React Native + Expo SDK 58)
@@ -113,14 +113,16 @@ npm run pipeline
 - [x] 7 Wagara UI patterns
 - [x] Design system tokens (Washi light / Sumi dark)
 - [x] Hybrid DB copy strategy (mobile → shared storage)
+- [x] Animations (ink spread 360ms, tap scale 120ms, sakura fall 3s)
+- [x] WCAG AA contrast compliance (4.5:1 all pairs)
+- [x] Accessibility props & hooks (A11yProps, useFocus, useAnnounce)
+- [x] Performance utilities (bundle size checker, lazyLoad helper)
+- [x] QA tests (contrast, bundle)
 
-### ⏳ In Progress (Fase 4)
-- [ ] Accessibility audit (WCAG)
+### ⏳ Planned (Fase 5+)
 - [ ] Widget theming (Washi/Sumi)
 - [ ] Boot receiver scheduling
 - [ ] Testing matrix (Android 8-14)
-
-### 📋 Planned (Fase 5+)
 - [ ] iOS WidgetKit
 - [ ] FSRS v2 migration
 - [ ] Statistics dashboard
@@ -176,9 +178,9 @@ npm run ci
 | **1** | 4 weeks | Data pipeline, UI assets | ✅ Done |
 | **2** | 6 weeks | SRS, widget queue, mobile screens | ✅ Done |
 | **3** | 3 weeks | Widget production (DB access, themes) | ✅ Done |
-| **4** | 3 weeks | UI polish, accessibility, testing | ⏳ In Progress |
+| **4** | 3 weeks | UI polish, accessibility, testing | ✅ Done |
 
-**MVP Target:** End of Phase 4
+**MVP Status:** Phase 0-4 complete (80% overall progress)
 
 ---
 

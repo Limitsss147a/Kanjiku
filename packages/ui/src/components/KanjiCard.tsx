@@ -10,6 +10,8 @@ interface KanjiCardProps {
   size?: 'small' | 'medium' | 'large';
   onPress?: () => void;
   disabled?: boolean;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 }
 
 export function KanjiCard({
@@ -20,6 +22,8 @@ export function KanjiCard({
   size = 'medium',
   onPress,
   disabled = false,
+  accessibilityLabel,
+  accessibilityHint,
 }: KanjiCardProps) {
   const theme = useTheme();
 
@@ -88,6 +92,14 @@ export function KanjiCard({
       style={styles.container}
       onPress={onPress}
       disabled={disabled}
+      accessibilityRole="button"
+      accessibilityLabel={
+        accessibilityLabel || `${character}, ${reading || ''} ${meaning || ''}`
+      }
+      accessibilityHint={
+        accessibilityHint || `JLPT Level N${jlptLevel || '5'}`
+      }
+      accessibilityState={{ disabled }}
       android_ripple={{ color: theme.colors.accent, radius: 40 }}
     >
       <Text style={styles.character}>{character}</Text>

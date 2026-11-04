@@ -11,6 +11,8 @@ interface ButtonProps {
   disabled?: boolean;
   loading?: boolean;
   fullWidth?: boolean;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
   style?: ViewStyle;
 }
 
@@ -22,6 +24,8 @@ export const Button: React.FC<ButtonProps> = ({
   disabled = false,
   loading = false,
   fullWidth = false,
+  accessibilityLabel,
+  accessibilityHint,
   style,
 }) => {
   const { colors } = useTheme();
@@ -78,6 +82,10 @@ export const Button: React.FC<ButtonProps> = ({
     <Pressable
       onPress={onPress}
       disabled={disabled || loading}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel || label}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{ disabled: disabled || loading }}
       style={({ pressed }) => [
         styles.container,
         pressed && !disabled && { opacity: 0.7 },

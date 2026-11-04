@@ -11,5 +11,8 @@ export * from './animations/ink';
 export * from './animations/tap';
 export * from './animations/sakura';
 export { checkThemeContrast, reportContrast } from './utils/contrast';
+export * from './a11y/types';
+export * from './a11y/useFocus';
+export { checkBundleSize, analyzeBundle, lazyLoad } from './performance/bundle';
 export { generateAllPatterns, generatePattern, saveAllPatterns } from './wagara';
 export type { Pattern } from './wagara';

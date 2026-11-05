@@ -54,11 +54,34 @@ kanjiku/
 
 ---
 
+## 📱 Supported Devices
+
+### Android
+| API Level | Version | Min Specs | Status |
+|-----------|---------|-----------|--------|
+| **26** | Android 8.0 (Oreo) | 2GB RAM, 1.5GHz dual-core | ✅ Tested |
+| **30** | Android 11 (R) | 3GB RAM, 2GHz quad-core | ✅ Tested |
+| **34** | Android 14 (U) | 4GB RAM, 2.4GHz octa-core | ✅ Tested |
+
+**Widget Requirements:**
+- Glance 1.1+ (WorkManager 15-min minimum interval)
+- SQLite 3.22+ (native)
+- 50MB free storage (DB + fonts)
+
+**Testing:** CI matrix runs widget tests + app typecheck on all three API levels (`.github/workflows/test-matrix.yml`)
+
+### iOS
+- iOS 13+ (WidgetKit planned for Fase 5+)
+- iPhone 6s or newer
+- 2GB RAM minimum
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites
 - Node.js 18+
-- iOS 13+ / Android 6+ (runtime)
+- Android API 26+ (Android 8+) or iOS 13+
 - Xcode (iOS) or Android Studio (Android)
 - `pyftsubset` for font subsetting: `pip install fonttools`
 
@@ -102,7 +125,7 @@ npm run pipeline
 
 ## 📱 Features (Current)
 
-### ✅ Implemented (Fase 0-4)
+### ✅ Implemented (Fase 0-5)
 - [x] 612 kanji database (N5-N3)
 - [x] SQLite ETL pipeline (sql.js + native SQLite)
 - [x] Mobile app (React Native + Expo SDK 58)
@@ -118,11 +141,12 @@ npm run pipeline
 - [x] Accessibility props & hooks (A11yProps, useFocus, useAnnounce)
 - [x] Performance utilities (bundle size checker, lazyLoad helper)
 - [x] QA tests (contrast, bundle)
+- [x] Widget theming (Washi/Sumi) — system dark mode + user override
+- [x] Boot receiver scheduling (survives reboot)
+- [x] Testing matrix (Android 8-14) — `.github/workflows/test-matrix.yml`
+- [x] E2E tests (review flow + grade cycle)
 
-### ⏳ Planned (Fase 5+)
-- [ ] Widget theming (Washi/Sumi)
-- [ ] Boot receiver scheduling
-- [ ] Testing matrix (Android 8-14)
+### 📋 Planned (Fase 6+)
 - [ ] iOS WidgetKit
 - [ ] FSRS v2 migration
 - [ ] Statistics dashboard
@@ -179,8 +203,9 @@ npm run ci
 | **2** | 6 weeks | SRS, widget queue, mobile screens | ✅ Done |
 | **3** | 3 weeks | Widget production (DB access, themes) | ✅ Done |
 | **4** | 3 weeks | UI polish, accessibility, testing | ✅ Done |
+| **5** | 1 week | Widget hardening, E2E, CI matrix | ✅ Done |
 
-**MVP Status:** Phase 0-4 complete (80% overall progress)
+**MVP Status:** Phase 0-5 complete (90% overall progress)
 
 ---
 

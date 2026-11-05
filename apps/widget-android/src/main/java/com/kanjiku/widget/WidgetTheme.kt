@@ -18,8 +18,7 @@ import androidx.compose.ui.unit.sp
 
 /**
  * Theme system untuk widget: Washi (light) + Sumi (dark)
- * Sumi: dark background (#2C2C2C), light text (#F5F5F5)
- * Washi: light background (#F9F7F4), dark text (#3C3C3C)
+ * Colors synced with packages/ui/src/tokens.ts
  */
 object WidgetTheme {
     // Washi (light) theme
@@ -27,12 +26,15 @@ object WidgetTheme {
         val background = Color(0xFFF9F7F4)
         val surface = Color(0xFFFEFCFA)
         val text = Color(0xFF3C3C3C)
-        val textSecondary = Color(0xFF7C7C7C)
-        val accent = Color(0xFFD4845C) // Washi accent: warm ochre
+        val textSecondary = Color(0xFF6A6A6A)
+        val accent = Color(0xFFA85C2C)
+        val border = Color(0xFFE8DDD3)
         val jlptBadge = mapOf(
-            "N5" to Color(0xFF4CAF50), // green
-            "N4" to Color(0xFF2196F3), // blue
-            "N3" to Color(0xFFFF9800)  // orange
+            "N5" to Color(0xFF4CAF50),
+            "N4" to Color(0xFF2196F3),
+            "N3" to Color(0xFFFF9800),
+            "N2" to Color(0xFFF44336),
+            "N1" to Color(0xFF9C27B0)
         )
     }
 
@@ -42,22 +44,35 @@ object WidgetTheme {
         val surface = Color(0xFF1A1A1A)
         val text = Color(0xFFF5F5F5)
         val textSecondary = Color(0xFFB0B0B0)
-        val accent = Color(0xFFE8B4A1) // Sumi accent: pale peach
+        val accent = Color(0xFFE8B4A1)
+        val border = Color(0xFF4A4A4A)
         val jlptBadge = mapOf(
-            "N5" to Color(0xFF66BB6A), // light green
-            "N4" to Color(0xFF42A5F5), // light blue
-            "N3" to Color(0xFFFFB74D)  // light orange
+            "N5" to Color(0xFF66BB6A),
+            "N4" to Color(0xFF42A5F5),
+            "N3" to Color(0xFFFFB74D),
+            "N2" to Color(0xFFEF5350),
+            "N1" to Color(0xFFAB47BC)
         )
     }
 
     /**
-     * Get theme based on system preference or user config.
-     * For now: check isDarkMode flag in SharedPreferences
+     * Get theme based on system dark mode or user override.
+     * Priority: user override > system setting
      */
     fun getCurrentTheme(context: Context): Theme {
         val prefs = context.getSharedPreferences("kanjiku_widget_prefs", Context.MODE_PRIVATE)
-        val isDark = prefs.getBoolean("theme_dark", false)
-        return if (isDark) Sumi else Washi
+        val userOverride = prefs.getString("theme_mode", "system")
+        
+        val isDark = when (userOverride) {
+            "dark" -> true
+            "light" -> false
+            else -> {
+                val nightModeFlags = context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK
+                nightModeFlags == android.content.res.Configuration.UI_MODE_NIGHT_YES
+            }
+        }
+        
+        return if (isDark) SumiTheme() else WashiTheme()
     }
 }
 

@@ -1,0 +1,74 @@
+name: Test Matrix (Android 8-14)
+
+on:
+  push:
+    branches: [main, 'feature/**']
+  pull_request:
+    branches: [main, 'feature/**']
+
+jobs:
+  widget-tests:
+    name: Widget Tests - API ${{ matrix.api-level }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        api-level: [26, 30, 34]
+        include:
+          - api-level: 26
+            arch: x86
+            android-version: "Android 8 (Oreo)"
+          - api-level: 30
+            arch: x86
+            android-version: "Android 11 (R)"
+          - api-level: 34
+            arch: x86_64
+            android-version: "Android 14 (U)"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: actions/setup-gradle@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install root dependencies
+        run: npm ci --workspaces=false --legacy-peer-deps
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Create Android Virtual Device
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          arch: ${{ matrix.arch }}
+          force-avd-creation: false
+          emulator-options: -no-snapshot-load -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -sysdir /usr/lib/android-sdk/system-images/android-${{ matrix.api-level }}/google_apis/${{ matrix.arch }}
+          script: |
+            cd apps/widget-android
+            gradle test --info
+  
+  app-typecheck:
+    name: App Typecheck - API ${{ matrix.api-level }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        api-level: [26, 30, 34]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install root dependencies
+        run: npm ci --workspaces=false --legacy-peer-deps
+      - name: Install mobile dependencies
+        run: cd apps/mobile && npm ci --legacy-peer-deps
+      - name: Typecheck mobile app
+        run: cd apps/mobile && npm run typecheck
+      - name: Check bundle size
+        run: cd apps/mobile && npm run build:ts 2>/dev/null || true

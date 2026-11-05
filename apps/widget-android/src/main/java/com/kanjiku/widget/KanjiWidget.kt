@@ -3,6 +3,7 @@ package com.kanjiku.widget
 import android.content.Context
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
+import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.provideContent
@@ -13,15 +14,15 @@ import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
+import androidx.glance.layout.height
+import androidx.glance.layout.Spacer
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
-import androidx.glance.layout.Spacer
-import androidx.glance.layout.height
-import androidx.glance.unit.dp
-import androidx.glance.unit.sp
-import androidx.glance.action.actionStartActivity
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.action.clickable
 import android.content.Intent
 import android.net.Uri
@@ -48,11 +49,10 @@ class KanjiWidget : GlanceAppWidget() {
             jlptLevel = prefs.getInt("current_kanji_jlpt", 3)
         )
 
-        val size = id.size
-        val isSmall = size.widthDp < 300 // 2x2 ~ 150dp
-        val isLarge = size.widthDp > 400 // 4x4 ~ 450dp
-
         provideContent {
+            val size = LocalSize.current
+            val isSmall = size.width < 300.dp // 2x2 ~ 150dp
+            val isLarge = size.width > 400.dp // 4x4 ~ 450dp
             val theme = WidgetTheme.getCurrentTheme(context)
             
             Box(

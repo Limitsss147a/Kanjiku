@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 10.0.0"
+    "version": ">= 10.0.0",
+    "appVersionSource": "remote"
   },
   "build": {
     "development": {
@@ -22,8 +23,7 @@
         "buildType": "apk"
       },
       "ios": {
-        "simulator": false,
-        "enterpriseProvisioning": "adhoc"
+        "simulator": false
       }
     },
     "production": {

@@ -3,22 +3,28 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { getKanjiById } from '../services/database';
+import { getKanjiById, getKanjiByCharacter } from '../services/database';
 import type { RootStackParamList } from '../navigation/AppNavigator';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'KanjiDetail'>;
 
 export default function KanjiDetailScreen({ route, navigation }: Props) {
-  const { kanjiId } = route.params;
+  const { kanjiId, character } = route.params;
   const [kanji, setKanji] = React.useState<any>(null);
 
   React.useEffect(() => {
     loadKanji();
-  }, [kanjiId]);
+  }, [kanjiId, character]);
 
   async function loadKanji() {
     try {
-      const result = await getKanjiById(kanjiId);
+      let result = null;
+      // Deep link provides character; internal navigation provides kanjiId
+      if (character) {
+        result = await getKanjiByCharacter(character);
+      } else if (kanjiId) {
+        result = await getKanjiById(kanjiId);
+      }
       setKanji(result);
     } catch (err) {
       console.error('Failed to load kanji:', err);

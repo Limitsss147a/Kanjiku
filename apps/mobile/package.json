@@ -1,7 +1,7 @@
 {
   "name": "kanjiku-mobile",
   "version": "1.0.0",
-  "main": "node_modules/expo/AppEntry.js",
+  "main": "index.ts",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
@@ -27,8 +27,8 @@
     "expo-router": "^4.0.22",
     "expo-sqlite": "~58.0.14",
     "expo-status-bar": "~58.0.4",
-    "react": "18.3.1",
-    "react-native": "0.76.3",
+    "react": "19.3.0",
+    "react-native": "0.88.1",
     "react-native-fs": "^2.20.0",
     "react-native-safe-area-context": "^5.11.0",
     "react-native-screens": "^3.35.0"
@@ -36,7 +36,7 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@testing-library/react-native": "^12.5.0",
-    "@types/react": "~18.3.12",
+    "@types/react": "~19.3.0",
     "@types/react-native": "~0.73.0",
     "@types/uuid": "9.0.8",
     "@typescript-eslint/eslint-plugin": "^7.18.0",

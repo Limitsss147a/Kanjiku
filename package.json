@@ -8,8 +8,13 @@
   },
   "scripts": {
     "test": "cd apps/mobile && npm test --if-present",
-    "typecheck": "cd packages/shared && npm run typecheck && cd ../apps/mobile && npm run typecheck && cd ../data-pipeline && npm run build:ts"
+    "typecheck": "cd packages/shared && npm run typecheck && cd ../apps/mobile && npm run typecheck && cd ../data-pipeline && npm run build:ts",
+    "build": "npm run build --workspaces --if-present"
   },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "keywords": [],
   "author": "",
   "license": "ISC",

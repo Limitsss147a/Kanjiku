@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+*.apk
+*.aab
+*.ipa
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test
+coverage/
+.nyc_output/
+
+# Misc
+*.tgz
+.cache/
+.turbo/
+
+# Large files
+gradle-*-bin.zip
+.gradle/
+
+# Data pipeline outputs
+packages/data-pipeline/output/
+packages/data-pipeline/dist/
+
+# Keep packages/ui/dist
+!packages/ui/dist/**
+
+# Android
+android/app/build/
+android/.gradle/
+
+# iOS
+ios/build/
+ios/Pods/

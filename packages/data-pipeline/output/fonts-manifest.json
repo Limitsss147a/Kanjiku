@@ -1,11 +1,14 @@
 {
   "fonts": [
     {
-      "name": "Noto Sans CJK",
-      "type": "system",
-      "subset": "612 kanji + Latin",
-      "location": "system_font"
+      "name": "Noto Sans CJK Subset",
+      "type": "embedded",
+      "subset_count": 612,
+      "original_size_mb": "15.70",
+      "subset_size_kb": "372",
+      "filename": "KanjiKu-Subset.ttf",
+      "license": "OFL 1.1",
+      "source": "https://github.com/google/noto-cjk"
     }
-  ],
-  "note": "Actual subset font requires manual download due to size (~250MB)"
+  ]
 }

@@ -1,9 +1,10 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, LinkingOptions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useTheme } from '@kanjiku/ui';
+import { Linking } from 'react-native';
 
 import HomeScreen from '../screens/HomeScreen';
 import KanjiDetailScreen from '../screens/KanjiDetailScreen';
@@ -12,19 +13,37 @@ import SettingsScreen from '../screens/SettingsScreen';
 
 export type RootStackParamList = {
   Home: undefined;
-  KanjiDetail: { kanjiId: string };
+  KanjiDetail: { kanjiId: string; character?: string };
   Review: undefined;
   Settings: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: ['kanjiku://'],
+  config: {
+    screens: {
+      KanjiDetail: {
+        path: 'kanji/:character',
+        parse: {
+          character: (character: string) => character,
+        },
+      },
+    },
+  },
+  async getInitialURL() {
+    const url = await Linking.getInitialURL();
+    return url;
+  },
+};
+
 export default function AppNavigator() {
   const { theme, colors } = useTheme();
 
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
+      <NavigationContainer linking={linking}>
         <StatusBar style={theme === 'sumi' ? 'light' : 'dark'} />
         <Stack.Navigator
           initialRouteName="Home"

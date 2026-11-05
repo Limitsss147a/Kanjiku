@@ -176,7 +176,32 @@ async function main() {
     }
 
     const outputPath = path.join(FONTS_DIR, "KanjiKu-Subset.ttf");
-    subsetFont(fontPath, unicodeRange, outputPath);
+    try {
+      subsetFont(fontPath, unicodeRange, outputPath);
+    } catch (subsetError) {
+      console.log("⚠️  Subsetting failed (likely Variable Font), using system fonts fallback");
+      
+      // Generate fallback manifest
+      const manifest = {
+        fonts: [
+          {
+            name: "Noto Sans CJK",
+            type: "system",
+            subset: `${kanjiData.length} kanji + Latin`,
+            location: "system_font",
+          },
+        ],
+        note: "Subset font generation failed - using system fonts",
+      };
+
+      fs.writeFileSync(
+        path.join(OUTPUT_DIR, "fonts-manifest.json"),
+        JSON.stringify(manifest, null, 2)
+      );
+
+      console.log("Fallback manifest saved:", path.join(OUTPUT_DIR, "fonts-manifest.json"));
+      return;
+    }
 
     // Generate manifest
     const manifest = {

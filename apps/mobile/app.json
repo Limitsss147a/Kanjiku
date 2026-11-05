@@ -8,13 +8,22 @@
     "userInterfaceStyle": "light",
     "scheme": "kanjiku",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#FBF7EE"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.kanjiku.app"
+      "bundleIdentifier": "com.kanjiku.app",
+      "infoPlist": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "kanjiku"
+            ]
+          }
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -26,9 +35,26 @@
       "versionCode": 1,
       "permissions": [
         "android.permission.RECEIVE_BOOT_COMPLETED",
-        "android.permission.WAKE_LOCK"
+        "android.permission.WAKE_LOCK",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.INTERNET"
       ],
-      "googleServicesFile": "./google-services.json"
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "kanjiku"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -40,9 +66,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "your-project-id"
+        "projectId": "69eb63d4-5964-4cb2-8b3a-b44b4956d343"
       }
     },
-    "owner": "your-owner"
+    "owner": "angga147a"
   }
 }

@@ -65,3 +65,6 @@ docs/
 tmp/
 temp/
 .cache/
+.gradle/
+gradle-8.5-bin.zip
+*.zip

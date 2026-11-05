@@ -7,9 +7,16 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "cd apps/mobile && npm test --if-present",
-    "typecheck": "cd packages/shared && npm run typecheck && cd ../apps/mobile && npm run typecheck && cd ../data-pipeline && npm run build:ts"
-  },
+      "test": "cd apps/mobile && npm test --if-present",
+      "typecheck": "cd packages/shared && npm run typecheck && cd ../apps/mobile && npm run typecheck && cd ../data-pipeline && npm run build:ts",
+      "build": "npm run build --workspaces --if-present",
+      "postinstall": "npm run build --workspace=@kanjiku/ui --if-present",
+      "eas-build-post-install": "npm run build --workspace=@kanjiku/ui"
+    },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "keywords": [],
   "author": "",
   "license": "ISC",

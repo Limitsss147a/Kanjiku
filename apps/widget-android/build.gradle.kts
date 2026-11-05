@@ -1,6 +1,15 @@
 plugins {
-    id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.application") version "8.2.2"
+    id("org.jetbrains.kotlin.android") version "1.9.22"
+}
+
+import org.gradle.api.JavaVersion
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
 }
 
 android {
@@ -8,16 +17,16 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        minSdk = 26
-        targetSdk = 34
+            minSdk = 26
+            targetSdk = 34
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
-    }
+            testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("debug")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

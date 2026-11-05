@@ -3,9 +3,6 @@
     "version": ">= 10.0.0",
     "appVersionSource": "remote"
   },
-  "hooks": {
-    "prebuild": "cd ../packages/ui && npm run build"
-  },
   "build": {
     "development": {
       "developmentClient": true,

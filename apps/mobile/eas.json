@@ -32,9 +32,6 @@
       }
     }
   },
-  "hooks": {
-    "postinstall": "npm run build --workspace=@kanjiku/ui --if-present"
-  },
   "submit": {
     "production": {}
   }

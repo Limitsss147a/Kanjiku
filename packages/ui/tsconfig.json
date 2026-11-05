@@ -11,8 +11,7 @@
     "jsx": "react-native",
     "resolveJsonModule": true,
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true
+    "emitDeclarationOnly": true
   },
   "include": ["src/**/*"]
 }

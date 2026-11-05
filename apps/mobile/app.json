@@ -7,11 +7,6 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "scheme": "kanjiku",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#FBF7EE"
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.kanjiku.app",
@@ -43,7 +38,6 @@
       "intentFilters": [
         {
           "action": "VIEW",
-          "autoVerify": true,
           "data": [
             {
               "scheme": "kanjiku"
@@ -62,7 +56,8 @@
     "plugins": [
       "expo-font",
       "expo-sqlite",
-      "expo-file-system"
+      "expo-file-system",
+      "expo-splash-screen"
     ],
     "extra": {
       "eas": {

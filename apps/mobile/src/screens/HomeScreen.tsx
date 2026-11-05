@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { NativeStackScreenProps } from 'expo-router';
 import { KanjiCard, useTheme } from '@kanjiku/ui';
 
 import { initDatabase, getRandomKanjiForWidget, getQueueStats } from '../services/database';

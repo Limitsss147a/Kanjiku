@@ -1,6 +1,5 @@
 import React from 'react';
-import { NavigationContainer, LinkingOptions } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer, LinkingOptions, createNativeStackNavigator } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useTheme } from '@kanjiku/ui';

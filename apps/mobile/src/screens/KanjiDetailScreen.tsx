@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { NativeStackScreenProps } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getKanjiById, getKanjiByCharacter } from '../services/database';

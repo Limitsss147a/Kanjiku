@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { NativeStackScreenProps } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { getQueueStats, cleanupOldQueueEntries, getSRSStats } from '../services/database';

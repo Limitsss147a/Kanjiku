@@ -54,12 +54,11 @@ class KanjiWidget : GlanceAppWidget() {
 
         provideContent {
             val theme = WidgetTheme.getCurrentTheme(context)
-            val themeImpl = if (theme == WidgetTheme.Washi) WashiTheme() else SumiTheme()
             
             Box(
                 modifier = GlanceModifier
                     .fillMaxSize()
-                    .background(ColorProvider(themeImpl.background))
+                    .background(ColorProvider(theme.background))
                     .clickable(actionStartActivity(
                         Intent(Intent.ACTION_VIEW, Uri.parse("kanjiku://kanji/${kanji.character}"))
                     )),
@@ -75,7 +74,7 @@ class KanjiWidget : GlanceAppWidget() {
                         style = TextStyle(
                             fontSize = if (isSmall) 48.sp else if (isLarge) 96.sp else 64.sp,
                             fontWeight = FontWeight.Bold,
-                            color = ColorProvider(themeImpl.text)
+                            color = ColorProvider(theme.text)
                         )
                     )
 
@@ -87,7 +86,7 @@ class KanjiWidget : GlanceAppWidget() {
                             text = kanji.reading,
                             style = TextStyle(
                                 fontSize = if (isLarge) 20.sp else 14.sp,
-                                color = ColorProvider(themeImpl.textSecondary)
+                                color = ColorProvider(theme.textSecondary)
                             )
                         )
 
@@ -99,14 +98,14 @@ class KanjiWidget : GlanceAppWidget() {
                         text = if (isSmall) truncate(kanji.meaningId, 20) else kanji.meaningId,
                         style = TextStyle(
                             fontSize = if (isSmall) 10.sp else if (isLarge) 18.sp else 14.sp,
-                            color = ColorProvider(themeImpl.accent)
+                            color = ColorProvider(theme.accent)
                         )
                     )
 
                     // JLPT badge - only on large widget
                     if (isLarge) {
                         Spacer(modifier = GlanceModifier.height(8.dp))
-                        val badgeColor = themeImpl.jlptBadge["N${kanji.jlptLevel}"] ?: themeImpl.accent
+                        val badgeColor = theme.jlptBadge["N${kanji.jlptLevel}"] ?: theme.accent
                         Text(
                             text = "N${kanji.jlptLevel}",
                             style = TextStyle(

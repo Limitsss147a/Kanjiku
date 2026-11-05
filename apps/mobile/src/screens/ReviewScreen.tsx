@@ -105,11 +105,11 @@ export default function ReviewScreen({ navigation }: Props) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.character}>{kanji.character}</Text>
+        <Text testID="characterDisplay" style={styles.character}>{kanji.character}</Text>
 
         {revealed ? (
           <View style={styles.details}>
-            <Text style={styles.meaning}>{kanji.meaning}</Text>
+            <Text testID="meaningDisplay" style={styles.meaning}>{kanji.meaning}</Text>
             <Text style={styles.readings}>
               Onyomi: {kanji.readings_on ? kanji.readings_on.join(', ') : '-'}
             </Text>
@@ -119,6 +119,7 @@ export default function ReviewScreen({ navigation }: Props) {
           </View>
         ) : (
           <TouchableOpacity
+            testID="revealButton"
             style={styles.revealButton}
             onPress={() => setRevealed(true)}
           >
@@ -130,6 +131,7 @@ export default function ReviewScreen({ navigation }: Props) {
       {revealed && (
         <View style={styles.grades}>
           <TouchableOpacity
+            testID="gradeAgain"
             style={[styles.gradeButton, { backgroundColor: '#E74C3C' }]}
             onPress={() => handleGrade(Grade.AGAIN)}
           >
@@ -137,6 +139,7 @@ export default function ReviewScreen({ navigation }: Props) {
           </TouchableOpacity>
 
           <TouchableOpacity
+            testID="gradeHard"
             style={[styles.gradeButton, { backgroundColor: '#E67E22' }]}
             onPress={() => handleGrade(Grade.HARD)}
           >
@@ -144,6 +147,7 @@ export default function ReviewScreen({ navigation }: Props) {
           </TouchableOpacity>
 
           <TouchableOpacity
+            testID="gradeGood"
             style={[styles.gradeButton, { backgroundColor: '#2ECC71' }]}
             onPress={() => handleGrade(Grade.GOOD)}
           >
@@ -151,6 +155,7 @@ export default function ReviewScreen({ navigation }: Props) {
           </TouchableOpacity>
 
           <TouchableOpacity
+            testID="gradeEasy"
             style={[styles.gradeButton, { backgroundColor: '#3498DB' }]}
             onPress={() => handleGrade(Grade.EASY)}
           >

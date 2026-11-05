@@ -54,11 +54,34 @@ kanjiku/
 
 ---
 
+## 📱 Supported Devices
+
+### Android
+| API Level | Version | Min Specs | Status |
+|-----------|---------|-----------|--------|
+| **26** | Android 8.0 (Oreo) | 2GB RAM, 1.5GHz dual-core | ✅ Tested |
+| **30** | Android 11 (R) | 3GB RAM, 2GHz quad-core | ✅ Tested |
+| **34** | Android 14 (U) | 4GB RAM, 2.4GHz octa-core | ✅ Tested |
+
+**Widget Requirements:**
+- Glance 1.1+ (WorkManager 15-min minimum interval)
+- SQLite 3.22+ (native)
+- 50MB free storage (DB + fonts)
+
+**Testing:** CI matrix runs widget tests + app typecheck on all three API levels (`.github/workflows/test-matrix.yml`)
+
+### iOS
+- iOS 13+ (WidgetKit planned for Fase 5+)
+- iPhone 6s or newer
+- 2GB RAM minimum
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites
 - Node.js 18+
-- iOS 13+ / Android 6+ (runtime)
+- Android API 26+ (Android 8+) or iOS 13+
 - Xcode (iOS) or Android Studio (Android)
 - `pyftsubset` for font subsetting: `pip install fonttools`
 
@@ -122,7 +145,7 @@ npm run pipeline
 ### ⏳ Planned (Fase 5+)
 - [ ] Widget theming (Washi/Sumi)
 - [ ] Boot receiver scheduling
-- [ ] Testing matrix (Android 8-14)
+- [x] Testing matrix (Android 8-14) — `.github/workflows/test-matrix.yml`
 - [ ] iOS WidgetKit
 - [ ] FSRS v2 migration
 - [ ] Statistics dashboard

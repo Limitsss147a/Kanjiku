@@ -75,6 +75,7 @@ export default function HomeScreen({ navigation }: Props) {
       {/* Actions */}
       <View style={styles.actions}>
         <TouchableOpacity
+          testID="startReviewButton"
           style={styles.button}
           onPress={() => navigation.navigate('Review')}
         >

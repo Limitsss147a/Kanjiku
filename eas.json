@@ -34,5 +34,6 @@
   },
   "submit": {
     "production": {}
-  }
+  },
+  "projectRootDirectory": "apps/mobile"
 }

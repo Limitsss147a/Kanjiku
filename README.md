@@ -207,6 +207,11 @@ npm run ci
 
 **MVP Status:** Phase 0-5 complete (90% overall progress)
 
+### 🚧 Build Status (2026-11-06)
+- **Android (EAS)**: Config ready (`eas.json` root, `pre_install` hook builds `@kanjiku/ui`), blocked by Free plan limit (resets Dec 1). Local `expo export:embed android` ✅ passes.
+- **iOS (EAS)**: Config ready (simulator profile), needs Apple Developer credentials in EAS dashboard.
+- **Widget Android (EAS)**: APK builds ✅ (4.8 MB, debug keystore). Local Gradle needs Java 17 (EAS provides).
+
 ---
 
 ## 🤝 Contributing

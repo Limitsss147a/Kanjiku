@@ -3,6 +3,7 @@
     "target": "ES2020",
     "module": "ESNext",
     "declaration": true,
+    "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
@@ -13,5 +14,6 @@
     "moduleResolution": "bundler",
     "emitDeclarationOnly": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/generate.ts", "src/wagara-node.ts", "src/performance/**/*"]
 }

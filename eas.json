@@ -34,5 +34,8 @@
   },
   "submit": {
     "production": {}
+  },
+  "hooks": {
+    "pre_install": "npm run build --workspace=@kanjiku/ui"
   }
 }

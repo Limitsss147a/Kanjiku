@@ -36,6 +36,6 @@
     "production": {}
   },
   "hooks": {
-    "pre_install": "pnpm --filter @kanjiku/ui run build"
+    "pre_install": "npm run build --workspace=@kanjiku/ui"
   }
 }

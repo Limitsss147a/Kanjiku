@@ -35,5 +35,7 @@
   "submit": {
     "production": {}
   },
-  "projectRootDirectory": "apps/mobile"
+  "hooks": {
+    "pre_install": "pnpm --filter @kanjiku/ui run build"
+  }
 }
